@@ -2,8 +2,24 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    concat: {
+    // concat: {
+    //   options: {
+    //     separator: ';',
+    //   },
+    //   dist: {
+    //     src: ['public/client/*.js'],
+    //     dest: 'public/dist/client.js'
+    //   }
+    // },
+
+  concat: {
+    basic_and_extras: {
+      files: {
+        'public/dist/lib.js': ['public/lib/jquery.js', 'public/lib/underscore.js', 'public/lib/backbone.js', 'public/lib/handlebars.js'],
+        'public/dist/client.js': ['public/client/*.js']
+      },
     },
+  },
 
     mochaTest: {
       test: {
@@ -21,15 +37,42 @@ module.exports = function(grunt) {
     },
 
     uglify: {
+      my_target: {
+        files: {
+          'public/dist/client.min.js': ['public/dist/client.js'],
+          'public/dist/lib.min.js': ['public/dist/lib.js']
+        }
+      }
     },
+
+    // grunt.initConfig({
+
+    //   });
+    //
+      // uglify : {
+      //   yourTask : {
+      //     src : 'public/dist/client.js',
+      //     dest : 'public/dist/client.min.js'
+      //   }
+      // },
 
     eslint: {
       target: [
+        'public/client/**/*.js',
+        'app/**/*.js',
+        'lib/*.js'
         // Add list of files to lint here
       ]
     },
 
     cssmin: {
+      minify: {
+        expand: true,
+        cwd: 'public/',
+        src: ['*.css', '*.min.css'],
+        dest: 'public/dist/',
+        ext: '.min.css'
+      }
     },
 
     watch: {
@@ -51,6 +94,7 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
+        command: 'cp -rp public project/ ; cd project; git push live master'
       }
     },
   });
@@ -81,6 +125,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
+      grunt.task.run(['shell']);
       // add your production server task here
     } else {
       grunt.task.run([ 'server-dev' ]);
@@ -88,7 +133,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('deploy', [
-    // add your deploy tasks here
+    'eslint',
+    'concat'
   ]);
 
 
